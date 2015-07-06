@@ -3,12 +3,11 @@ var utils = require('./utils'),
 
 describe('Utils', function() {
 
+
 	describe('#sort()', function() {
 		it('should sort given array of numbers with ascending ordering', function() {
-			expect(utils.sort([2, 1, 3, 0])).to.equal([0, 1, 2, 3]);
+			expect(utils.sort([2, 1, 1, 0]).join()).to.equal([0, 1, 1, 2].join());
 		});
-
-		//TODO: don't forget about custom comparator function
 	});
 
 	describe('#capitalize()', function() {
@@ -29,19 +28,25 @@ describe('Utils', function() {
 
 	describe('#camelize()', function() {
 		it('should make all first letter to upper case', function() {
-			expect(utils.camelize('just do it')).to.equal('Just Do It');
+			expect(utils.camelize('EquipmentClass name')).to.equal('equipmentClassName');
 		})
 	});
 
-	//describe('#camelize()', function() {
-	//	it('should make all first letter to upper case', function() {
-	//		expect(utils.camelize(['just', 'do', 'it'])).to.equal('Just Do It');
-	//	})
-	//});
+	describe('#camelize()', function() {
+		it('should make all first letter to upper case', function() {
+			expect(utils.camelize('Equipment className')).to.equal('equipmentClassName');
+		})
+	});
 
 	describe('#camelize()', function() {
 		it('should make all first letter to upper case', function() {
-			expect(utils.camelize('JUST DO IT')).to.equal('Just Do It');
+			expect(utils.camelize('equipment class name')).to.equal('equipmentClassName');
+		})
+	});
+
+	describe('#camelize()', function() {
+		it('should make all first letter to upper case', function() {
+			expect(utils.camelize('Equipment Class Name')).to.equal('equipmentClassName');
 		})
 	});
 

@@ -36,19 +36,37 @@ module.exports = {
      */
  
     camelize:function (sequence) {
-        //for (var i = 0; i < sequence.length; i++) {
-        //    if (Object.prototype.toString.call(sequence).toUpperCase() === '[OBJECT ARRAY]') {
-        //    var world,
-        //        b;
-        //        world = sequence[i].replace(/(?:^\w|[A-Z]|\b\w)/g, function(word) { return word.toUpperCase(); });
-        //        b = world.split(' ');
-        //        console.log(b);
-        //    }
-        //}
-        var lowerCase = sequence.toLocaleLowerCase();
-        return lowerCase.replace(/(?:^\w|[A-Z]|\b\w)/g, function(word) { return word.toUpperCase(); });
-        return lowerCase;
+            //var string = '';
+            //
+            //if (Object.prototype.toString.call(sequence).toUpperCase() === '[OBJECT ARRAY]') {
+            //    for (var i = 0; i < sequence.length; i++) {
+            //        if ((typeof sequence[i]) === 'object') {
+            //            var newArr = sequence[i];
+            //            string += module.exports.camelize(newArr);
+            //        } else if (/\s/.test(sequence[i])) {
+            //            var newArr = sequence[i].split(' ');
+            //            string += module.exports.camelize(newArr);
+            //        } else {
+            //            sequence[i] = sequence[i].replace(/\W/, ''); // removing spec chars
+            //            sequence[i] = sequence[i].replace(/[0-9]]/); // removing digits
+            //
+            //            string += module.exports.capitalize(sequence[i]);
+            //        }
+            //    }
+            //}
+            //else if (Object.prototype.toString.call(sequence).toUpperCase() === '[OBJECT STRING]') {
+            //    var newArr = sequence.split(' ');
+            //    string += module.exports.camelize(newArr);
+            //}
+            //
+            //return string;
+
+
+            return sequence.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
+                return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
+            }).replace(/\s+/g, '');
     },
+
  
     /**
      * Cut of any count of spaces from the beginning and from the end of the string
