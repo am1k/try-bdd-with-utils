@@ -10,11 +10,13 @@ module.exports = {
         var count = list.length;
         for (var i = 0; i < count-1; i++)
         { for (var j = 0; j < count-1-i; j++)
-            { if (list[j+1] < list[j])
-                { var app = list[j+1]; list[j+1] = list[j]; list[j] = app; }
+            { if ((comparator && comparator(list[j], list[j + 1])) ||
+                (!comparator && list[j] > list[j+1]))
+                { var app = list[j+1];
+                      list[j+1] = list[j];
+                      list[j] = app; }
             }
         }
-        console.log(list);
         return list;
     },
  
@@ -36,35 +38,27 @@ module.exports = {
      */
  
     camelize:function (sequence) {
-            //var string = '';
-            //
-            //if (Object.prototype.toString.call(sequence).toUpperCase() === '[OBJECT ARRAY]') {
-            //    for (var i = 0; i < sequence.length; i++) {
-            //        if ((typeof sequence[i]) === 'object') {
-            //            var newArr = sequence[i];
-            //            string += module.exports.camelize(newArr);
-            //        } else if (/\s/.test(sequence[i])) {
-            //            var newArr = sequence[i].split(' ');
-            //            string += module.exports.camelize(newArr);
-            //        } else {
-            //            sequence[i] = sequence[i].replace(/\W/, ''); // removing spec chars
-            //            sequence[i] = sequence[i].replace(/[0-9]]/); // removing digits
-            //
-            //            string += module.exports.capitalize(sequence[i]);
-            //        }
-            //    }
-            //}
-            //else if (Object.prototype.toString.call(sequence).toUpperCase() === '[OBJECT STRING]') {
-            //    var newArr = sequence.split(' ');
-            //    string += module.exports.camelize(newArr);
-            //}
-            //
-            //return string;
+            var string = '';
 
+            if (Object.prototype.toString.call(sequence).toUpperCase() === '[OBJECT ARRAY]') {
+                for (var i = 0; i < sequence.length; i++) {
+                    if ((typeof sequence[i]) === 'object') {
+                        var newArr = sequence[i];
+                        string += module.exports.camelize(newArr);
+                    }
+                    else {
+                        sequence[i] = sequence[i].replace(/\W/, '');
+                        sequence[i] = sequence[i].replace(/[0-9]]/);
 
-            return sequence.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
-                return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
-            }).replace(/\s+/g, '');
+                        string += module.exports.capitalize(sequence[i]);
+                    }
+                }
+            }
+            else if (Object.prototype.toString.call(sequence).toUpperCase() === '[OBJECT STRING]') {
+                var newArr = sequence.split(' ');
+                string += module.exports.camelize(newArr);
+            }
+            return string;
     },
 
  
@@ -85,7 +79,12 @@ module.exports = {
      */
  
     reverse:function (list) {
-       return list.split('').reverse().join('');
+        for (var i = 0; i < list.length / 2; i++) {
+            var newArr = list[i];
+            list[i] = list[list.length - 1 - i];
+            list[list.length - 1 - i] = newArr;
+        }
+        return list;
     },
  
     /**
@@ -94,11 +93,29 @@ module.exports = {
      *  @params {Function} iterator  - some rule which changes each element
      *  @return {Array} new list with changes elements
      */
- 
-    map:function (list, iterator) {
 
-        return [];
+
+    map: function (list, iterator) {
+        if (Object.prototype.toString.call(list).toUpperCase() === '[OBJECT OBJECT]') {
+            var newObj = {};
+
+            for (var someProperty in list) {
+                if (list.hasOwnProperty(someProperty)) {
+                    newObj[someProperty] = iterator(list[someProperty]);
+                }
+            }
+
+            return newObj;
+        } else if (Object.prototype.toString.call(list).toUpperCase() === '[OBJECT ARRAY]') {
+            var newArr = [];
+
+            for (var i = 0; i < list.length; i++) {
+                newArr.push(iterator(list[i]));
+            }
+            return newArr;
+        }
     },
+
 
     /**
      * Group some input sequence of element by some rule
@@ -108,8 +125,18 @@ module.exports = {
      */
  
     groupBy:function (list, iterator) {
-        return {};
+        var results = {};
+        for (var i = 0; i < list.length; i++) {
+            var key = iterator(list[i]);
+                if (results.hasOwnProperty(key)) {
+                    results[key].push(list[i]);
+                } else {
+                    results[key] = [list[i]];
+                }
+        }
+        return results;
     },
+
 
     /**
      * Creates a version of the function that can only be called one time. 
