@@ -109,11 +109,63 @@ describe('Utils', function() {
 			var testArray = [1.1,1.2,2.1,2.3];
 
 			expect(utils.groupBy(testArray, function (num) {
-				console.log(Math.floor(num));
 				return Math.floor(num);
-			})).to.equal({'1': [ 1.1, 1.2 ], '2': [ 2.1, 2.3 ]});
+			})).to.eql({'1': [ 1.1, 1.2 ], '2': [ 2.1, 2.3 ]});
 		});
-	})
 
+		it('Should accept array with single element and return according object', function () {
+			var testArray = [1.1,1.2,2.1,2.3];
 
+			expect(utils.groupBy(testArray, function (num) {
+				return Math.floor(num);
+			})).to.eql({'1': [ 1.1, 1.2 ], '2': [ 2.1, 2.3 ]});
+		});
+	});
+
+	describe('#once()', function () {
+		it('function that can only be called one time', function () {
+			var count = 0;
+			var newFunction = utils.once(function(){count++});
+			newFunction();
+			newFunction();
+			expect(count).to.equal(1);
+		})
+	});
+
+	describe('#debounce()', function () {
+		it('new debounced version of the passed function', function () {
+			var count = 1000;
+			var text = 'Hello';
+			var newFunction = utils.debounce(function() {return text.toUpperCase()}, count);
+			newFunction();
+			newFunction();
+			newFunction();
+			newFunction();
+			console.log(newFunction);
+			expect(text.toUpperCase()).to.equal('HELLO');
+		});
+	});
+
+	describe('#deepEqual()', function () {
+		it ('This is the same object', function () {
+			var first = {2: [2,3]};
+			var second = {2: [2,3]};
+			expect(utils.deepEqual(second,first)).to.equal(true);
+		});
+		it('different types', function () {
+			var first = [2,4];
+			var second = {3: 5};
+			expect(utils.deepEqual(first,second)).to.equal(false);
+		});
+		it('different arrays', function () {
+			var first = [2,4,6];
+			var second = [2,5,7];
+			expect(utils.deepEqual(first,second)).to.equal(false);
+		});
+		it('different objects', function () {
+			var first = {2: 4};
+			var second = {2: 5};
+			expect(utils.deepEqual(first,second)).to.equal(false);
+		});
+	});
 });
