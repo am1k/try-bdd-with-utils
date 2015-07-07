@@ -40,7 +40,7 @@ module.exports = {
     camelize:function (sequence) {
             var string = '';
 
-            if (Object.prototype.toString.call(sequence).toUpperCase() === '[OBJECT ARRAY]') {
+            if (this.isArray(sequence)) {
                 for (var i = 0; i < sequence.length; i++) {
                     if ((typeof sequence[i]) === 'object') {
                         var newArr = sequence[i];
@@ -54,7 +54,7 @@ module.exports = {
                     }
                 }
             }
-            else if (Object.prototype.toString.call(sequence).toUpperCase() === '[OBJECT STRING]') {
+            else if (this.isString(sequence)) {
                 var newArr = sequence.split(' ');
                 string += module.exports.camelize(newArr);
             }
@@ -96,7 +96,7 @@ module.exports = {
 
 
     map: function (list, iterator) {
-        if (Object.prototype.toString.call(list).toUpperCase() === '[OBJECT OBJECT]') {
+        if (this.isObject(list)) {
             var newObj = {};
 
             for (var someProperty in list) {
@@ -106,7 +106,7 @@ module.exports = {
             }
 
             return newObj;
-        } else if (Object.prototype.toString.call(list).toUpperCase() === '[OBJECT ARRAY]') {
+        } else if (this.isArray(list)) {
             var newArr = [];
 
             for (var i = 0; i < list.length; i++) {
@@ -146,9 +146,14 @@ module.exports = {
      */
 
     once: function(func){
-        return;
+        var executed = false;
+        return function() {
+            if (!executed) {
+                executed = true;
+                return func.apply(this, arguments)
+            }
+        }
     }, 
-
 
     /**
      * Creates and returns a new debounced version of the passed function 
@@ -160,7 +165,66 @@ module.exports = {
      */
 
     debounce: function(func, wait){
-        return;
+        var timeout;
+        return function() {
+            var context = this, args = arguments;
+            var later = function() {
+                timeout = null;
+                func.apply(context, args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    },
+
+    deepEqual: function(listOne, listTwo) {
+        var arrays = this.isArray(listOne) && this.isArray(listTwo);
+        var objects = (!this.isArray(listOne) &&  typeof listOne === 'object') && (!this.isArray(listTwo) &&  typeof listTwo === 'object');
+        var firstObjKeys = objects ? Object.keys(listOne) : listOne;
+        var secondObjKeys = objects ? Object.keys(listTwo) : listTwo;
+        var currentKey;
+
+        if ((!arrays && !objects) || (firstObjKeys.length !== secondObjKeys.length)) {
+            return false;
+        }
+        if (objects) {
+            for (var i = 0; i < firstObjKeys.length; i++) {
+                currentKey = firstObjKeys[i];
+                if(typeof listOne[currentKey] === 'object' && typeof listTwo[currentKey] === 'object'){
+                    if(!this.deepEqual(listOne[currentKey], listTwo[currentKey])){
+                        return false;
+                    }
+                }else if (secondObjKeys.indexOf(currentKey) == -1 || listOne[currentKey] !== listTwo[currentKey]) {
+                    //console.log('simple equal')
+                    return false;
+                }
+            }
+        } else if (arrays) {
+            for (var i = 0; i < listOne.length; i++) {
+
+                if(typeof listOne[i] === 'object' && typeof listTwo[i] === 'object'){
+                    if(!this.deepEqual(listOne[i], listTwo[i])){
+                        return false;
+                    }
+                }else if(listOne[i] !== listTwo[i]) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    },
+
+    isArray: function(obj) {
+        return Object.prototype.toString.call(obj).toUpperCase() === '[OBJECT ARRAY]';
+    },
+
+    isObject: function(obj) {
+        return Object.prototype.toString.call(obj).toUpperCase() === '[OBJECT OBJECT]';
+    },
+
+    isString: function(obj) {
+        return Object.prototype.toString.call(obj).toUpperCase() === '[OBJECT STRING]';
     }
  
 };
